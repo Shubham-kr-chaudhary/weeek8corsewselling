@@ -18,22 +18,31 @@
 // }
 
 const {Router} = require('express');
-
+const {userMiddleware} = require("../middlewares/user");
+const {PurchaseModal, CourseModal} =require("../db");
 const courseRouter = Router();
 
 
-    courseRouter.post('/purchase',function (req,res){
+    courseRouter.post('/purchase',userMiddleware ,async function (req,res){
 
-    res.json({
-        message:"Course has been purchased"
+  const {courseId, userId} = req.body;
+//check if the user has purchased the course
+    await PurchaseModal.create({
+        courseId: courseId,
+        userId: userId
     })
+  res.json({
+      message:"Course has been purchased"
+  })
 
 })
 
-courseRouter.get('/preview', function (req,res){
+courseRouter.get('/preview', async function (req,res){
+
+const courses = await CourseModal.find({});
 
         res.json({
-        message:"Courses"
+        courses
     })
 
 })

@@ -1,10 +1,10 @@
 
 const{Router} = require('express');
-const {UserModal}=require("../db");
+const {UserModal, PurchaseModal}=require("../db");
 const {z}=require("zod");
 const jwtUser = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const {userMiddleware} = require("../middlewares/user");
 const userRouter = Router();
 
 const { JWT_SECRET_USER } = require('../config');
@@ -99,10 +99,19 @@ userRouter.post('/signin', async function (req,res){
   
 
 
-userRouter.get('/purchases', function (req,res){
+userRouter.get('/purchases',userMiddleware, async function (req,res){
 
-            res.json({
-        message:"Whatever you bought"
+    const userId = req.userId;
+
+const purchases= await PurchaseModal.find({
+    userId
+})
+const coursesdata = await CourseModal.find({
+    _id: {$in: purchases.map((p)=>p.courseId)}
+})
+res.json({
+        purchases,
+        coursesdata
     })
 
 })

@@ -4,6 +4,7 @@ const {z} = require("zod");
 
 const bcrypt = require("bcrypt");
 const jwtAdmin = require("jsonwebtoken");
+const {adminMiddleware} = require("../middlewares/adminMiddleware");
 
 const { JWT_SECRET_ADMIN } = require('../config');
 
@@ -152,22 +153,50 @@ adminRouter.post("/course", adminMiddleware, async function (req,res){
 })
 
 
-adminRouter.put("/course", function (req,res){
+adminRouter.put("/course",adminMiddleware, async function (req,res){
+  
+
+    const adminId = req.userId;
+
+    const {title, description, price, imageUrl,courseId} = req.body;
+
+   const course = await CourseModal.updateOne({
+        _id:courseId,
+        creatorId:adminId
+   },{
+        title: title,
+        description: description,
+        price: price,
+        imageUrl: imageUrl,
+        creatorId: adminId
+        
+    })
     res.json({
-        message:"admin post updated"
+        message:"course updated",
+        courseId: course._id.toString()
     })
 })
 
-adminRouter.delete("/course", function (req,res){
-    res.json({
-        message:"admin post deleted"
+// adminRouter.delete("/course", function (req,res){
+//     res.json({
+//         message:"admin post deleted"
+//     })
+// })
+
+
+adminRouter.get("/course/bulk", adminMiddleware, async function (req,res){
+
+    const adminId = req.userId;
+      
+       const courses = await CourseModal.updateOne({
+
+        creatorId:adminId
+  
+        
     })
-})
-
-
-adminRouter.get("/course/bulk", function (req,res){
     res.json({
-        message:"all admin posts"
+        message:"course created",
+        courses
     })
 })
 
